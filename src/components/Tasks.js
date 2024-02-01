@@ -6,23 +6,13 @@ export default function TasksPage() {
   const navigate = useNavigate();
   
 
-  const [tasks, setTasks] = useState({
-    title: '',
-    description: '',
-    dueDate: '',
-    createdAt: '',
-    updatedAt: '',
-    priority: '',
-    status: '',
-    creator: '',
-    responsible: '',
-  });
+  const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentTask, setCurrentTask] = useState("");
   const [editMode, setEditMode] = useState(false);
-
-
   
+  
+
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate('/'); // Перенаправить на страницу авторизации, если пользователь не авторизован
@@ -57,38 +47,84 @@ export default function TasksPage() {
     .then((response) => response.json())
     .then((data) => {
       if (data.success === true) {
-        alert(data.tasks.id)
+        alert('nice')
       }
     })
     .catch((error) => {
       console.log("Ошибка при отправке запроса:", error);
     });
+
+    const dummyTasks = [
+      { id: 1, name: "Task 1" },
+      { id: 2, name: "Task 2" },
+      { id: 3, name: "Task 3" },
+    ];
+    setTasks(dummyTasks);
   };
+
+  function AddTaskForm() {
+  const [heading, setHeading] = useState('');
+  const [description, setDescription] = useState('');
+  const [expirationDate, setExpirationDate] = useState('');
+  const [priority, setPriority] = useState('');
+  const [status, setStatus] = useState('');
+  const [creatorUser, setCreatorUser] = useState('');
+  const [responsibleUser, setResponsibleUser] = useState('');
+
+  const handleSubmit = async (event) => {
+  event.preventDefault();
+
+    const data = {
+      heading,
+      description,
+      expiration_date: expirationDate,
+      priority,
+      status,
+      creator_user: creatorUser,
+      responsible_user: responsibleUser,
+    };
+
+    try {
+      const response = await fetch('http://your-api-url/add-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const responseData = await response.json();
+      console.log(responseData); // Выводим ответ от сервера
+
+      // Очищаем поля формы после успешного добавления записи
+      setHeading('');
+      setDescription('');
+      setExpirationDate('');
+      setPriority('');
+      setStatus('');
+      setCreatorUser('');
+      setResponsibleUser('');
+
+      // Дополнительные действия после успешного добавления записи, например, обновление списка задач
+    } catch (error) {
+      console.error(error);
+      // Обработка ошибки при добавлении записи
+    }
+  };
+  } 
+
 
   const addTask = () => {
     // Здесь можно выполнить запрос на сервер для добавления новой задачи
     // и обновить состояние tasks
-    fetch("http://server/addTask.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success === true) {
-          alert(data.tasks.id)
-        }
-      })
-      .catch((error) => {
-        console.log("Ошибка при отправке запроса:", error);
-      });
     const newTask = { id: Date.now(), name: currentTask };
     setTasks([...tasks, newTask]);
     setCurrentTask("");
     handleClose();
   };
+
+
+
 
   const editTask = (task) => {
     setCurrentTask(task.name);
@@ -99,24 +135,6 @@ export default function TasksPage() {
   const updateTask = () => {
     // Здесь можно выполнить запрос на сервер для обновления задачи
     // и обновить состояние tasks
- 
-      fetch("http://server/addTask.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success === true) {
-          alert(data.tasks.id)
-        }
-      })
-      .catch((error) => {
-        console.log("Ошибка при отправке запроса:", error);
-      });
-
     const updatedTask = { ...currentTask };
     const updatedTasks = tasks.map((task) => {
       if (task.id === updatedTask.id) {
@@ -150,63 +168,35 @@ export default function TasksPage() {
 
     {/* Модальное окно для добавления/редактирования задачи */}
     <Modal show={showModal} onHide={handleClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>{editMode ? "Edit Task" : "Add Task"}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form.Group controlId="formTask">
-          <Form.Label>Заголовок</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Заголовок"
-            value={tasks.title}
-            onChange={(e) => setTask(e.target.value)}
-          />
-           <Form.Label>Описание</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Описание"
-            value={currentTask}
-            onChange={(e) => setCurrentTask(e.target.value)}
-          />
-           <Form.Label>Дата окончания</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Дата окончания"
-            value={currentTask}
-            onChange={(e) => setCurrentTask(e.target.value)}
-          />
-           <Form.Label>Приоритет</Form.Label>
-           <Form.Control
-            type="text"
-            placeholder="Приоритет"
-            value={currentTask}
-            onChange={(e) => setCurrentTask(e.target.value)}
-          />
-           <Form.Label>Ответственный</Form.Label>
-           <Form.Control
-            type="text"
-            placeholder="Ответственный"
-            value={currentTask}
-            onChange={(e) => setCurrentTask(e.target.value)}
-          />
-        </Form.Group>
-      </Modal.Body>
-      <Modal.Footer>
-        {editMode ? (
-          <Button variant="primary" onClick={updateTask}>
-            Update
-          </Button>
-        ) : (
-          <Button variant="primary" onClick={addTask}>
-            Add
-          </Button>
-        )}
-        <Button variant="secondary" onClick={handleClose}>
-          Cancel
-        </Button>
-      </Modal.Footer>
-    </Modal>
+  <Modal.Header closeButton>
+    <Modal.Title>{editMode ? "Edit Task" : "Add Task"}</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form.Group controlId="formTask">
+      <Form.Label>Task Name</Form.Label>
+      <Form.Control
+        type="text"
+        placeholder="Enter task name"
+        value={currentTask}
+        onChange={(e) => setCurrentTask(e.target.value)}
+      />
+    </Form.Group>
+  </Modal.Body>
+  <Modal.Footer>
+    {editMode ? (
+      <Button variant="primary" onClick={updateTask}>
+        Update
+      </Button>
+    ) : (
+      <Button variant="primary" onClick={handleSubmit}>
+        Add
+      </Button>
+    )}
+    <Button variant="secondary" onClick={handleClose}>
+      Cancel
+    </Button>
+  </Modal.Footer>
+</Modal>
 
     {/* Таблица с задачами */}
     <Table striped bordered>
