@@ -63,18 +63,27 @@ export default function TasksPage() {
     .catch((error) => {
       console.log("Ошибка при отправке запроса:", error);
     });
-
-    const dummyTasks = [
-      { id: 1, name: "Task 1" },
-      { id: 2, name: "Task 2" },
-      { id: 3, name: "Task 3" },
-    ];
-    setTasks(dummyTasks);
   };
 
   const addTask = () => {
     // Здесь можно выполнить запрос на сервер для добавления новой задачи
     // и обновить состояние tasks
+    fetch("http://server/addTask.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success === true) {
+          alert(data.tasks.id)
+        }
+      })
+      .catch((error) => {
+        console.log("Ошибка при отправке запроса:", error);
+      });
     const newTask = { id: Date.now(), name: currentTask };
     setTasks([...tasks, newTask]);
     setCurrentTask("");
