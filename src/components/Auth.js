@@ -1,18 +1,41 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm(props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const navigate = useNavigate();
+  
   function clickHandler() {
-    alert(`Username: ${username}, Password: ${password}`);
     fetch("http://server/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, password }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success === true) {
+        localStorage.setItem('token', data.token); // Сохранение токена в localStorage
+        localStorage.setItem('id', data.id); // Сохранение id в localStorage
+        navigate('/tasks');
+      }
+    })
+    .catch((error) => {
+      console.log("Ошибка при отправке запроса:", error);
     });
+  }
+  
+  const isAuthorized = isAuthenticated();
+
+  function isAuthenticated() {
+    const token = localStorage.getItem('token');
+    return !!token;
+  }
+
+  if (isAuthorized) {
+    return null; // If the user is already authorized, render nothing else
   }
 
   return (
