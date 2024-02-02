@@ -23,6 +23,7 @@ export default function LoginForm(props) {
       }
     })
     .catch((error) => {
+      alert('Неверный логин или пароль');
       console.log("Ошибка при отправке запроса:", error);
     });
   }
@@ -35,7 +36,7 @@ export default function LoginForm(props) {
   }
 
   if (isAuthorized) {
-    return null; // If the user is already authorized, render nothing else
+    return null; 
   }
 
   return (
@@ -44,9 +45,9 @@ export default function LoginForm(props) {
         <div className="Auth-form-content">
           <h3 className="Auth-form-title">Sign In</h3>
           <div className="form-group mt-3">
-            <label>Email address</label>
+            <label>Login </label>
             <input
-              type="email"
+              type="Login"
               className="form-control mt-1"
               placeholder="Enter email"
               value={username}
@@ -69,7 +70,7 @@ export default function LoginForm(props) {
               type="submit"
               className="btn btn-primary"
             >
-              Submit
+              Войти
             </button>
           </div>
         </div>
